@@ -45,7 +45,7 @@ const FilterBar: React.FC<Props> = ({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
         <div className="flex flex-col gap-2">
-          <label className={`text-[9px] font-black uppercase tracking-[0.2em] ml-1 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>Nº Processo</label>
+          <label className={`text-[9px] font-black uppercase tracking-[0.2em] ml-1 ${theme === 'dark' ? 'text-white' : 'text-slate-400'}`}>Nº Processo</label>
           <input 
             value={filters.numeroProcesso} 
             onChange={e => update('numeroProcesso', e.target.value)} 
@@ -55,7 +55,7 @@ const FilterBar: React.FC<Props> = ({
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className={`text-[9px] font-black uppercase tracking-[0.2em] ml-1 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>Arguido</label>
+          <label className={`text-[9px] font-black uppercase tracking-[0.2em] ml-1 ${theme === 'dark' ? 'text-white' : 'text-slate-400'}`}>Arguido</label>
           <input 
             value={filters.arguido} 
             onChange={e => update('arguido', e.target.value)} 
@@ -65,7 +65,7 @@ const FilterBar: React.FC<Props> = ({
         </div>
         
         <div className="flex flex-col gap-2">
-          <label className={`text-[9px] font-black uppercase tracking-[0.2em] ml-1 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>Crime</label>
+          <label className={`text-[9px] font-black uppercase tracking-[0.2em] ml-1 ${theme === 'dark' ? 'text-white' : 'text-slate-400'}`}>Crime</label>
           <select value={filters.crime} onChange={e => update('crime', e.target.value)} className={`filter-input ${theme === 'dark' ? 'dark-filter' : 'light-filter'}`}>
             <option value="">TODOS</option>
             {crimes.map(c => <option key={c.id} value={c.valor}>{c.valor.toUpperCase()}</option>)}
@@ -73,7 +73,7 @@ const FilterBar: React.FC<Props> = ({
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className={`text-[9px] font-black uppercase tracking-[0.2em] ml-1 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>DIAP / Unidade</label>
+          <label className={`text-[9px] font-black uppercase tracking-[0.2em] ml-1 ${theme === 'dark' ? 'text-white' : 'text-slate-400'}`}>DIAP / Unidade</label>
           <select value={filters.diap} onChange={e => update('diap', e.target.value)} className={`filter-input ${theme === 'dark' ? 'dark-filter' : 'light-filter'}`}>
             <option value="">TODAS</option>
             {diaps.map(d => <option key={d.id} value={d.valor}>{d.valor.toUpperCase()}</option>)}
@@ -81,7 +81,7 @@ const FilterBar: React.FC<Props> = ({
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className={`text-[9px] font-black uppercase tracking-[0.2em] ml-1 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>Procurador</label>
+          <label className={`text-[9px] font-black uppercase tracking-[0.2em] ml-1 ${theme === 'dark' ? 'text-white' : 'text-slate-400'}`}>Procurador</label>
           <select value={filters.procurador} onChange={e => update('procurador', e.target.value)} className={`filter-input ${theme === 'dark' ? 'dark-filter' : 'light-filter'}`}>
             <option value="">TODOS</option>
             {procuradores.map(p => <option key={p.id} value={p.nome}>{p.nome.toUpperCase()}</option>)}
@@ -89,7 +89,7 @@ const FilterBar: React.FC<Props> = ({
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className={`text-[9px] font-black uppercase tracking-[0.2em] ml-1 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>Medida</label>
+          <label className={`text-[9px] font-black uppercase tracking-[0.2em] ml-1 ${theme === 'dark' ? 'text-white' : 'text-slate-400'}`}>Medida</label>
           <select value={filters.medida} onChange={e => update('medida', e.target.value)} className={`filter-input ${theme === 'dark' ? 'dark-filter' : 'light-filter'}`}>
             <option value="">TODAS</option>
             {medidas.map(m => <option key={m.id} value={m.valor}>{m.valor.toUpperCase()}</option>)}

@@ -67,7 +67,7 @@ const ProcessForm: React.FC<ProcessFormProps> = ({
         }));
         return;
       } catch (err: any) {
-        // Fix: Explicitly casting err to any to avoid "Property 'name' does not exist on type 'unknown'"
+        // Fix: Casting err to any to avoid "Property 'name' does not exist on type 'unknown'"
         if (err && (err as any).name === 'AbortError') {
           return;
         }
@@ -118,18 +118,18 @@ const ProcessForm: React.FC<ProcessFormProps> = ({
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="space-y-2">
-              <label className={`block text-[10px] font-black uppercase tracking-widest ml-1 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-900'}`}>Nº de Processo</label>
+              <label className={`block text-[10px] font-black uppercase tracking-widest ml-1 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Nº de Processo</label>
               <input required name="numeroProcesso" value={formData.numeroProcesso} onChange={handleChange} className={`form-input-styled ${theme === 'dark' ? 'dark-input-special' : 'light-input'}`} placeholder="Ex: 1234/23.0ABC"/>
             </div>
             <div className="space-y-2">
-              <label className={`block text-[10px] font-black uppercase tracking-widest ml-1 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-900'}`}>Data de Revisão</label>
+              <label className={`block text-[10px] font-black uppercase tracking-widest ml-1 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Data de Revisão</label>
               <div className="relative group">
                 <input required type="date" name="prazoRevisao" value={formData.prazoRevisao} onChange={handleChange} className={`form-input-styled pr-12 ${theme === 'dark' ? 'dark-input-special' : 'light-input'}`}/>
                 <CalendarDaysIcon className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 text-blue-500 pointer-events-none group-hover:scale-110 transition-transform"/>
               </div>
             </div>
             <div className="space-y-2">
-              <label className={`block text-[10px] font-black uppercase tracking-widest ml-1 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-900'}`}>Duração Máxima</label>
+              <label className={`block text-[10px] font-black uppercase tracking-widest ml-1 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Duração Máxima</label>
               <div className="relative group">
                 <input required type="date" name="prazoMaximo" value={formData.prazoMaximo} onChange={handleChange} className={`form-input-styled pr-12 ${theme === 'dark' ? 'dark-input-special' : 'light-input'}`}/>
                 <CalendarDaysIcon className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 text-orange-500 pointer-events-none group-hover:scale-110 transition-transform"/>
@@ -265,7 +265,7 @@ const ProcessForm: React.FC<ProcessFormProps> = ({
         .custom-scrollbar::-webkit-scrollbar { width: 3px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { @apply bg-slate-700/50 rounded-full; }
         
-        /* Ocultar ícone padrão do navegador para colocar o nosso próprio icon customizado */
+        /* Custom date picker behavior for better appearance */
         input[type="date"]::-webkit-calendar-picker-indicator {
           opacity: 0;
           cursor: pointer;
