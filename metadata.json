@@ -1,0 +1,5 @@
+{
+  "name": "Gestor de Medidas de Coação",
+  "description": "Uma aplicação profissional para o controlo de prazos de revisão e duração máxima de medidas de coação em processos criminais, com alertas de urgência e exportação de dados.",
+  "requestFramePermissions": []
+}
