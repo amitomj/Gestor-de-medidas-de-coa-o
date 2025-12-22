@@ -56,6 +56,7 @@ const App: React.FC = () => {
     const newProcess: Processo = { ...data, id: crypto.randomUUID(), status: 'pendente', createdAt: Date.now() };
     setProcessos(prev => [newProcess, ...prev]);
     setIsFormOpen(false);
+    setEditingProcess(undefined);
   };
 
   const handleUpdateProcess = (data: Omit<Processo, 'id' | 'status' | 'createdAt'>) => {
@@ -89,7 +90,6 @@ const App: React.FC = () => {
         directoryInputRef.current?.click();
       }
     } catch (err: any) {
-      // Fix: Casting err to any to avoid "Property 'name' does not exist on type 'unknown'"
       if (err && ((err as any).name === 'SecurityError' || (err as any).name === 'NotAllowedError')) {
         directoryInputRef.current?.click();
       }
@@ -126,7 +126,6 @@ const App: React.FC = () => {
     return processos
       .filter(p => p.status === currentStatusView)
       .filter(p => {
-        // Garantir tratamento de array em campos que podem ser strings em dados legados
         const safeCrimes = Array.isArray(p.crime) ? p.crime : [p.crime as unknown as string];
         const safeArguidos = Array.isArray(p.arguidos) ? p.arguidos : [p.arguidos as unknown as string];
         const safeDiaps = Array.isArray(p.diap) ? p.diap : [p.diap as unknown as string];
@@ -147,6 +146,12 @@ const App: React.FC = () => {
         return getMin(a) - getMin(b);
       });
   }, [processos, currentStatusView, filters]);
+
+  const onDuplicate = (p: Processo) => {
+    // Abrir o formulário com os dados do processo, mas ID especial para salvar como novo
+    setEditingProcess({ ...p, id: 'temp-copy-id' });
+    setIsFormOpen(true);
+  };
 
   if (!isInitialized) {
     return <StartupScreen theme={theme} onInitialize={(data, folder, fallbackFiles) => {
@@ -181,7 +186,7 @@ const App: React.FC = () => {
           </div>
           
           <div className="flex items-center gap-2 flex-wrap justify-center">
-            <button onClick={() => setIsFormOpen(true)} className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-sm shadow-xl transition-all active:scale-95 ${theme === 'dark' ? 'bg-blue-600 hover:bg-blue-500 text-white' : 'bg-indigo-600 hover:bg-indigo-500 text-white'}`}>
+            <button onClick={() => { setEditingProcess(undefined); setIsFormOpen(true); }} className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-sm shadow-xl transition-all active:scale-95 ${theme === 'dark' ? 'bg-blue-600 hover:bg-blue-500 text-white' : 'bg-indigo-600 hover:bg-indigo-500 text-white'}`}>
               <PlusIcon className="w-5 h-5" /> NOVO PROCESSO
             </button>
             <div className={`flex items-center rounded-xl p-1 border shadow-inner ${theme === 'dark' ? 'bg-[#0f172a] border-slate-700' : 'bg-slate-100 border-slate-200'}`}>
@@ -223,7 +228,7 @@ const App: React.FC = () => {
                 onEdit={(p) => { setEditingProcess(p); setIsFormOpen(true); }}
                 onDelete={(id) => confirm('Deseja eliminar este processo?') && setProcessos(prev => prev.filter(p => p.id !== id))}
                 onToggleStatus={(id) => setProcessos(prev => prev.map(p => p.id === id ? { ...p, status: p.status === 'pendente' ? 'findo' : 'pendente' } : p))}
-                onDuplicate={(p) => setProcessos(prev => [{ ...p, id: crypto.randomUUID(), arguidos: p.arguidos.map(a => a + ' (Cópia)') }, ...prev])}
+                onDuplicate={onDuplicate}
                 onOpenDoc={openDocument}
                 diaps={diaps}
                 procuradores={procuradores}
@@ -238,7 +243,7 @@ const App: React.FC = () => {
       {(isFormOpen || editingProcess) && (
         <ProcessForm 
           isOpen={true} onClose={() => { setIsFormOpen(false); setEditingProcess(undefined); }}
-          onSubmit={editingProcess ? handleUpdateProcess : handleAddProcess}
+          onSubmit={editingProcess && editingProcess.id !== 'temp-copy-id' ? handleUpdateProcess : handleAddProcess}
           initialData={editingProcess} theme={theme}
           crimes={crimes} setCrimes={setCrimes}
           diaps={diaps} setDiaps={setDiaps}

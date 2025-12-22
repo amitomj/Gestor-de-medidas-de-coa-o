@@ -6,7 +6,8 @@ import {
   PencilIcon, 
   ClipboardDocumentCheckIcon,
   CheckIcon,
-  PlusIcon
+  PlusIcon,
+  ExclamationCircleIcon
 } from '@heroicons/react/24/outline';
 
 interface Item {
@@ -46,6 +47,9 @@ const ReferenceSelectBox: React.FC<ReferenceSelectBoxProps> = ({
     i.label.toLowerCase().includes(filter.toLowerCase()) ||
     (i.secondaryLabel && i.secondaryLabel.toLowerCase().includes(filter.toLowerCase()))
   );
+
+  // Itens selecionados que NÃO estão na lista oficial (ex: Manuel (Cópia))
+  const externalSelected = selectedIds.filter(id => !items.find(item => item.label === id));
 
   const handleAddNew = () => {
     if (!newValue.trim()) return;
@@ -110,13 +114,30 @@ const ReferenceSelectBox: React.FC<ReferenceSelectBoxProps> = ({
       </div>
 
       <div className="overflow-y-auto p-1.5 space-y-0.5 custom-scrollbar h-[140px]">
+        {/* Exibir itens selecionados mas não listados no topo */}
+        {externalSelected.length > 0 && externalSelected.map(label => (
+          <div key={label} className={`flex items-center gap-2 p-1.5 rounded-lg transition-colors ${theme === 'dark' ? 'bg-blue-600/5 hover:bg-blue-600/10' : 'bg-slate-50 hover:bg-slate-100'}`}>
+            <input 
+              type="checkbox"
+              checked={true}
+              onChange={() => onToggle(label)}
+              className="w-3.5 h-3.5 rounded-md cursor-pointer accent-indigo-600"
+            />
+            <div className="flex-1 flex flex-col cursor-pointer" onClick={() => onToggle(label)}>
+              <span className="text-[11px] font-bold text-indigo-400 flex items-center gap-1">
+                {label} <ExclamationCircleIcon className="w-3 h-3" title="Item externo ao banco de dados" />
+              </span>
+            </div>
+          </div>
+        ))}
+
         {filteredItems.map(item => (
           <div key={item.id} className={`flex items-center gap-2 p-1.5 rounded-lg group relative transition-colors ${theme === 'dark' ? 'hover:bg-blue-600/10' : 'hover:bg-slate-100'}`}>
             <input 
               type="checkbox"
               checked={selectedIds.includes(item.label)}
               onChange={() => onToggle(item.label)}
-              className="w-3.5 h-3.5 rounded-md cursor-pointer"
+              className="w-3.5 h-3.5 rounded-md cursor-pointer accent-indigo-600"
             />
             {editingId === item.id ? (
               <div className="flex-1 flex gap-1">
@@ -137,7 +158,6 @@ const ReferenceSelectBox: React.FC<ReferenceSelectBoxProps> = ({
             )}
             <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
               <button type="button" onClick={() => {setEditingId(item.id); setEditValue(item.label);}} className="p-1 text-slate-500 hover:text-blue-400"><PencilIcon className="w-3.5 h-3.5"/></button>
-              {/* Fix for "Cannot find name 'id'" by using item.id */}
               <button type="button" onClick={() => onRemove(item.id)} className="p-1 text-slate-500 hover:text-rose-400"><TrashIcon className="w-3.5 h-3.5"/></button>
             </div>
           </div>

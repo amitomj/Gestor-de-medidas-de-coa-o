@@ -66,8 +66,8 @@ const ProcessForm: React.FC<ProcessFormProps> = ({
           documentosRelacionados: Array.from(new Set([...prev.documentosRelacionados, ...newDocs]))
         }));
         return;
-      } catch (err: any) {
-        // Fix: Casting err to any to avoid "Property 'name' does not exist on type 'unknown'"
+        // Fixed: Use a standard catch block and cast to any to avoid "Property 'name' does not exist on type 'unknown'"
+      } catch (err) {
         if (err && (err as any).name === 'AbortError') {
           return;
         }
@@ -94,6 +94,9 @@ const ProcessForm: React.FC<ProcessFormProps> = ({
     });
   };
 
+  const isCopy = initialData?.id === 'temp-copy-id';
+  const title = initialData ? (isCopy ? 'Duplicar Processo' : 'Editar Processo') : 'Novo Processo';
+
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto backdrop-blur-md ${theme === 'dark' ? 'bg-[#0f172a]/95' : 'bg-slate-900/40'}`}>
       <input type="file" multiple accept=".pdf" ref={fileInputRef} className="hidden" onChange={handleFileInputChange} />
@@ -103,7 +106,7 @@ const ProcessForm: React.FC<ProcessFormProps> = ({
         <div className="px-10 pt-12 pb-8 flex justify-between items-start">
            <div className="text-left">
               <h2 className={`text-4xl font-black tracking-tighter leading-none mb-2 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-                {initialData ? 'Editar Processo' : 'Novo Processo'}
+                {title}
               </h2>
               <p className={`text-[10px] font-bold uppercase tracking-[0.3em] ${theme === 'dark' ? 'text-blue-400' : 'text-slate-400'}`}>
                 Identificação e Prazos Processuais
