@@ -94,7 +94,7 @@ const ReferenceDataManager: React.FC<Props> = ({
             </button>
           </div>
 
-          <div className="max-h-[40vh] overflow-y-auto space-y-3 pr-2 custom-scrollbar">
+          <div className="max-h-[40vh] overflow-y-auto space-y-3 pr-2">
             {(activeTab === 'crimes' ? crimes : activeTab === 'diaps' ? diaps : activeTab === 'medidas' ? medidas : activeTab === 'arguidos' ? arguidos : procuradores).map((item: any) => (
               <div key={item.id} className="flex justify-between items-center p-5 bg-slate-50/50 rounded-2xl border border-slate-100 hover:bg-white hover:shadow-lg transition-all group">
                 <div>
@@ -120,8 +120,6 @@ const ReferenceDataManager: React.FC<Props> = ({
       </div>
       <style>{`
         .shadow-3xl { box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.3); }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
       `}</style>
     </div>
   );

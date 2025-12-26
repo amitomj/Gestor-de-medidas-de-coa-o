@@ -66,7 +66,6 @@ const ProcessForm: React.FC<ProcessFormProps> = ({
           documentosRelacionados: Array.from(new Set([...prev.documentosRelacionados, ...newDocs]))
         }));
         return;
-        // Fixed: Use a standard catch block and cast to any to avoid "Property 'name' does not exist on type 'unknown'"
       } catch (err) {
         if (err && (err as any).name === 'AbortError') {
           return;
@@ -225,7 +224,7 @@ const ProcessForm: React.FC<ProcessFormProps> = ({
                     <CloudArrowUpIcon className="w-5 h-5" /> Abrir Explorador PC
                   </button>
                 </div>
-                <div className="mt-4 flex-1 overflow-y-auto space-y-1 p-2 rounded-xl border border-slate-700/30 custom-scrollbar">
+                <div className="mt-4 flex-1 overflow-y-auto space-y-1 p-2 rounded-xl border border-slate-700/30">
                   {formData.documentosRelacionados.length > 0 ? (
                     formData.documentosRelacionados.map(f => (
                       <div key={f} className="w-full flex justify-between items-center px-3 py-2 rounded-lg text-[9px] font-bold bg-blue-600/10 text-blue-400">
@@ -265,8 +264,6 @@ const ProcessForm: React.FC<ProcessFormProps> = ({
         .light-input {
           @apply bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:ring-indigo-500/20;
         }
-        .custom-scrollbar::-webkit-scrollbar { width: 3px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { @apply bg-slate-700/50 rounded-full; }
         
         /* Custom date picker behavior for better appearance */
         input[type="date"]::-webkit-calendar-picker-indicator {

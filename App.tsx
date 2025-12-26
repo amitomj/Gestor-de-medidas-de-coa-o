@@ -108,8 +108,9 @@ const App: React.FC = () => {
 
     if (folderHandle) {
       try {
-        const permission = await folderHandle.queryPermission();
-        if (permission !== 'granted') await folderHandle.requestPermission();
+        // Fix: Cast to any as TypeScript standard types for FileSystemDirectoryHandle might miss permission methods
+        const permission = await (folderHandle as any).queryPermission();
+        if (permission !== 'granted') await (folderHandle as any).requestPermission();
         const fileHandle = await folderHandle.getFileHandle(fileName);
         const file = await fileHandle.getFile();
         const url = URL.createObjectURL(file);
@@ -171,6 +172,7 @@ const App: React.FC = () => {
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${theme === 'dark' ? 'bg-[#0f172a] text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
+      {/* @ts-ignore: Non-standard webkitdirectory attribute is used for folder selection */}
       <input type="file" ref={directoryInputRef} onChange={handleDirectoryInput} style={{ display: 'none' }} webkitdirectory="true" directory="" />
 
       <header className={`${theme === 'dark' ? 'bg-[#1e293b] border-[#334155]' : 'bg-white border-slate-200'} border-b shadow-lg sticky top-0 z-40`}>

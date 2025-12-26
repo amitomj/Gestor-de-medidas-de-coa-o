@@ -113,7 +113,7 @@ const ReferenceSelectBox: React.FC<ReferenceSelectBoxProps> = ({
         </div>
       </div>
 
-      <div className="overflow-y-auto p-1.5 space-y-0.5 custom-scrollbar h-[140px]">
+      <div className="overflow-y-auto p-1.5 space-y-0.5 h-[140px]">
         {/* Exibir itens selecionados mas não listados no topo */}
         {externalSelected.length > 0 && externalSelected.map(label => (
           <div key={label} className={`flex items-center gap-2 p-1.5 rounded-lg transition-colors ${theme === 'dark' ? 'bg-blue-600/5 hover:bg-blue-600/10' : 'bg-slate-50 hover:bg-slate-100'}`}>
