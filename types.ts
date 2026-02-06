@@ -5,6 +5,14 @@ export interface Procurador {
   id: string;
   nome: string;
   telefone: string;
+  email?: string;
+}
+
+export interface Juiz {
+  id: string;
+  nome: string;
+  telefone?: string;
+  email?: string;
 }
 
 export interface ReferenceItem {
@@ -32,15 +40,16 @@ export interface DocumentoDecisao {
 export interface Processo {
   id: string;
   numeroProcesso: string;
-  crime: string[]; // Alterado para array
+  crime: string[];
   medidasAplicadas: string[];
   prazoRevisao: string; 
   prazoMaximo: string; 
   arguidos: string[]; 
   comentarios: string;
-  diap: string[]; // Alterado para array
-  nomeProcurador: string[]; // Alterado para array
-  telefoneProcurador: string; // Mantido para compatibilidade ou guardado como string composta
+  diap: string[];
+  nomeProcurador: string[];
+  juiz: string[]; // Novo campo
+  telefoneProcurador: string;
   documentosRelacionados: string[];
   status: ProcessStatus;
   createdAt: number;

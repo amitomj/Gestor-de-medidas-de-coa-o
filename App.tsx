@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Processo, ProcessStatus, Procurador, ReferenceItem, AppFilters, INITIAL_FILTERS, Arguido } from './types';
+import { Processo, ProcessStatus, Procurador, ReferenceItem, AppFilters, INITIAL_FILTERS, Arguido, Juiz } from './types';
 import { 
   PlusIcon, 
   ArchiveBoxIcon,
@@ -32,6 +32,7 @@ const App: React.FC = () => {
   const [medidas, setMedidas] = useState<ReferenceItem[]>([]);
   const [procuradores, setProcuradores] = useState<Procurador[]>([]);
   const [arguidos, setArguidos] = useState<Arguido[]>([]);
+  const [juizes, setJuizes] = useState<Juiz[]>([]);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
@@ -43,6 +44,23 @@ const App: React.FC = () => {
   const [folderHandle, setFolderHandle] = useState<FileSystemDirectoryHandle | null>(null);
   const [filesMap, setFilesMap] = useState<Map<string, File>>(new Map());
   const directoryInputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-save: Guardar dados sempre que houver alterações
+  useEffect(() => {
+    if (isInitialized) {
+      const dataToSave = {
+        processos,
+        crimes,
+        diaps,
+        medidas,
+        procuradores,
+        arguidos,
+        juizes,
+        lastUpdate: Date.now()
+      };
+      localStorage.setItem('gestor_judicial_data', JSON.stringify(dataToSave));
+    }
+  }, [processos, crimes, diaps, medidas, procuradores, arguidos, juizes, isInitialized]);
 
   useEffect(() => {
     localStorage.setItem('theme', theme);
@@ -108,7 +126,6 @@ const App: React.FC = () => {
 
     if (folderHandle) {
       try {
-        // Fix: Cast to any as TypeScript standard types for FileSystemDirectoryHandle might miss permission methods
         const permission = await (folderHandle as any).queryPermission();
         if (permission !== 'granted') await (folderHandle as any).requestPermission();
         const fileHandle = await folderHandle.getFileHandle(fileName);
@@ -149,7 +166,6 @@ const App: React.FC = () => {
   }, [processos, currentStatusView, filters]);
 
   const onDuplicate = (p: Processo) => {
-    // Abrir o formulário com os dados do processo, mas ID especial para salvar como novo
     setEditingProcess({ ...p, id: 'temp-copy-id' });
     setIsFormOpen(true);
   };
@@ -163,6 +179,7 @@ const App: React.FC = () => {
         setMedidas(data.medidas || []);
         setProcuradores(data.procuradores || []);
         setArguidos(data.arguidos || []);
+        setJuizes(data.juizes || []);
       }
       if (folder) setFolderHandle(folder);
       if (fallbackFiles) setFilesMap(fallbackFiles);
@@ -172,7 +189,7 @@ const App: React.FC = () => {
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${theme === 'dark' ? 'bg-[#0f172a] text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
-      {/* @ts-ignore: Non-standard webkitdirectory attribute is used for folder selection */}
+      {/* @ts-ignore */}
       <input type="file" ref={directoryInputRef} onChange={handleDirectoryInput} style={{ display: 'none' }} webkitdirectory="true" directory="" />
 
       <header className={`${theme === 'dark' ? 'bg-[#1e293b] border-[#334155]' : 'bg-white border-slate-200'} border-b shadow-lg sticky top-0 z-40`}>
@@ -215,7 +232,7 @@ const App: React.FC = () => {
           filters={filters} setFilters={setFilters} theme={theme}
           onExportWord={() => exportToWord(filteredProcessos, currentStatusView)}
           onExportJson={() => {
-            const proj = { processos, crimes, diaps, medidas, procuradores, arguidos };
+            const proj = { processos, crimes, diaps, medidas, procuradores, arguidos, juizes };
             const blob = new Blob([JSON.stringify(proj, null, 2)], { type: 'application/json' });
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'backup_judicial.json'; a.click();
           }}
@@ -234,6 +251,7 @@ const App: React.FC = () => {
                 onOpenDoc={openDocument}
                 diaps={diaps}
                 procuradores={procuradores}
+                juizes={juizes}
               />
             </div>
           ) : (
@@ -252,6 +270,7 @@ const App: React.FC = () => {
           medidas={medidas} setMedidas={setMedidas}
           procuradores={procuradores} setProcuradores={setProcuradores}
           arguidos={arguidos} setArguidos={setArguidos}
+          juizes={juizes} setJuizes={setJuizes}
           folderHandle={folderHandle}
           filesMap={filesMap}
         />
@@ -265,6 +284,7 @@ const App: React.FC = () => {
           medidas={medidas} setMedidas={setMedidas}
           procuradores={procuradores} setProcuradores={setProcuradores}
           arguidos={arguidos} setArguidos={setArguidos}
+          juizes={juizes} setJuizes={setJuizes}
         />
       )}
     </div>

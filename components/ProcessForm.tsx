@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Processo, ReferenceItem, Procurador, Arguido } from '../types';
+import { Processo, ReferenceItem, Procurador, Arguido, Juiz } from '../types';
 import { XMarkIcon, DocumentIcon, FolderPlusIcon, CloudArrowUpIcon, TrashIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
 import ReferenceSelectBox from './ReferenceSelectBox';
 
@@ -15,16 +15,17 @@ interface ProcessFormProps {
   medidas: ReferenceItem[]; setMedidas: React.Dispatch<React.SetStateAction<ReferenceItem[]>>;
   procuradores: Procurador[]; setProcuradores: React.Dispatch<React.SetStateAction<Procurador[]>>;
   arguidos: Arguido[]; setArguidos: React.Dispatch<React.SetStateAction<Arguido[]>>;
+  juizes: Juiz[]; setJuizes: React.Dispatch<React.SetStateAction<Juiz[]>>;
   folderHandle: FileSystemDirectoryHandle | null;
   filesMap?: Map<string, File>;
 }
 
 const ProcessForm: React.FC<ProcessFormProps> = ({ 
-  isOpen, onClose, onSubmit, initialData, theme, crimes, setCrimes, diaps, setDiaps, medidas, setMedidas, procuradores, setProcuradores, arguidos, setArguidos, folderHandle, filesMap 
+  isOpen, onClose, onSubmit, initialData, theme, crimes, setCrimes, diaps, setDiaps, medidas, setMedidas, procuradores, setProcuradores, arguidos, setArguidos, juizes, setJuizes, folderHandle, filesMap 
 }) => {
   const [formData, setFormData] = useState<Omit<Processo, 'id' | 'status' | 'createdAt'>>({
     numeroProcesso: '', crime: [], medidasAplicadas: [], prazoRevisao: '', prazoMaximo: '',
-    arguidos: [], comentarios: '', diap: [], nomeProcurador: [], telefoneProcurador: '',
+    arguidos: [], comentarios: '', diap: [], nomeProcurador: [], juiz: [], telefoneProcurador: '',
     documentosRelacionados: []
   });
 
@@ -33,7 +34,7 @@ const ProcessForm: React.FC<ProcessFormProps> = ({
   useEffect(() => {
     if (initialData) {
       const { id, status, createdAt, ...rest } = initialData;
-      setFormData(rest);
+      setFormData(prev => ({ ...prev, ...rest }));
     }
   }, [initialData]);
 
@@ -66,8 +67,8 @@ const ProcessForm: React.FC<ProcessFormProps> = ({
           documentosRelacionados: Array.from(new Set([...prev.documentosRelacionados, ...newDocs]))
         }));
         return;
-      } catch (err) {
-        if (err && (err as any).name === 'AbortError') {
+      } catch (err: any) {
+        if (err && err.name === 'AbortError') {
           return;
         }
       }
@@ -78,16 +79,16 @@ const ProcessForm: React.FC<ProcessFormProps> = ({
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
-    const newDocs = Array.from(files).map(f => f.name);
+    const newDocs = Array.from(files).map((f: any) => f.name);
     setFormData(prev => ({
       ...prev,
       documentosRelacionados: Array.from(new Set([...prev.documentosRelacionados, ...newDocs]))
     }));
   };
 
-  const handleToggleReference = (field: 'arguidos' | 'crime' | 'diap' | 'medidasAplicadas' | 'nomeProcurador', value: string) => {
+  const handleToggleReference = (field: 'arguidos' | 'crime' | 'diap' | 'medidasAplicadas' | 'nomeProcurador' | 'juiz', value: string) => {
     setFormData(prev => {
-      const current = (prev[field] as string[]);
+      const current = (prev[field] as string[]) || [];
       const updated = current.includes(value) ? current.filter(v => v !== value) : [...current, value];
       return { ...prev, [field]: updated };
     });
@@ -100,7 +101,7 @@ const ProcessForm: React.FC<ProcessFormProps> = ({
     <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto backdrop-blur-md ${theme === 'dark' ? 'bg-[#0f172a]/95' : 'bg-slate-900/40'}`}>
       <input type="file" multiple accept=".pdf" ref={fileInputRef} className="hidden" onChange={handleFileInputChange} />
 
-      <div className={`w-full max-w-6xl my-auto rounded-[2rem] shadow-2xl border transition-all duration-300 overflow-hidden flex flex-col ${theme === 'dark' ? 'bg-[#1e293b] border-[#334155]' : 'bg-white border-slate-200'}`}>
+      <div className={`w-full max-w-7xl my-auto rounded-[2rem] shadow-2xl border transition-all duration-300 overflow-hidden flex flex-col ${theme === 'dark' ? 'bg-[#1e293b] border-[#334155]' : 'bg-white border-slate-200'}`}>
         
         <div className="px-10 pt-12 pb-8 flex justify-between items-start">
            <div className="text-left">
@@ -141,16 +142,16 @@ const ProcessForm: React.FC<ProcessFormProps> = ({
 
           <div className="space-y-5">
             <h3 className={`text-[11px] font-black uppercase tracking-[0.2em] border-b pb-3 ${theme === 'dark' ? 'text-slate-500 border-slate-700' : 'text-slate-400 border-slate-100'}`}>Intervenientes e Unidades</h3>
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
               <ReferenceSelectBox 
-                title="Arguidos / Suspeitos" category="SELECIONAR" theme={theme}
+                title="Arguidos" category="SEL" theme={theme}
                 items={arguidos.map(a => ({ id: a.id, label: a.nome, secondaryLabel: a.nif }))}
                 selectedIds={formData.arguidos}
                 onToggle={(v) => handleToggleReference('arguidos', v)}
                 onAdd={(n, s) => setArguidos(prev => [...prev, { id: crypto.randomUUID(), nome: n, nif: s }])}
                 onRemove={(id) => setArguidos(prev => prev.filter(a => a.id !== id))}
                 onEdit={(id, n, s) => setArguidos(prev => prev.map(a => a.id === id ? { ...a, nome: n, nif: s } : a))}
-                placeholderAdd="Novo nome..."
+                placeholderAdd="Novo..."
               />
               <ReferenceSelectBox 
                 title="Crime" category="TIPO" theme={theme}
@@ -160,27 +161,37 @@ const ProcessForm: React.FC<ProcessFormProps> = ({
                 onAdd={(v) => setCrimes(prev => [...prev, { id: crypto.randomUUID(), valor: v }])}
                 onRemove={(id) => setCrimes(prev => prev.filter(c => c.id !== id))}
                 onEdit={(id, v) => setCrimes(prev => prev.map(c => c.id === id ? { ...c, valor: v } : c))}
-                placeholderAdd="Tipo de crime..."
+                placeholderAdd="Tipo..."
               />
               <ReferenceSelectBox 
-                title="DIAP / Unidade" category="LOCAL" theme={theme}
+                title="DIAP / Unid." category="LOC" theme={theme}
                 items={diaps.map(d => ({ id: d.id, label: d.valor, secondaryLabel: d.telefone }))}
                 selectedIds={formData.diap}
                 onToggle={(v) => handleToggleReference('diap', v)}
                 onAdd={(v, t) => setDiaps(prev => [...prev, { id: crypto.randomUUID(), valor: v, telefone: t }])}
                 onRemove={(id) => setDiaps(prev => prev.filter(d => d.id !== id))}
                 onEdit={(id, v, t) => setDiaps(prev => prev.map(d => d.id === id ? { ...d, valor: v, telefone: t } : d))}
-                showSecondaryInput={true} placeholderSecondary="Telefone..." placeholderAdd="Nova unidade..."
+                showSecondaryInput={true} placeholderSecondary="Tel..." placeholderAdd="Nova..."
               />
               <ReferenceSelectBox 
-                title="Procurador" category="TITULAR" theme={theme}
-                items={procuradores.map(p => ({ id: p.id, label: p.nome, secondaryLabel: p.telefone }))}
+                title="Procurador" category="TIT" theme={theme}
+                items={procuradores.map(p => ({ id: p.id, label: p.nome, secondaryLabel: [p.email, p.telefone].filter(Boolean).join(' | ') }))}
                 selectedIds={formData.nomeProcurador}
                 onToggle={(v) => handleToggleReference('nomeProcurador', v)}
-                onAdd={(n, s) => setProcuradores(prev => [...prev, { id: crypto.randomUUID(), nome: n, telefone: s || '' }])}
+                onAdd={(n, e, t) => setProcuradores(prev => [...prev, { id: crypto.randomUUID(), nome: n, telefone: t || '', email: e || '' }])}
                 onRemove={(id) => setProcuradores(prev => prev.filter(p => p.id !== id))}
-                onEdit={(id, n, s) => setProcuradores(prev => prev.map(p => p.id === id ? { ...p, nome: n, telefone: s || '' } : p))}
-                showSecondaryInput={true} placeholderSecondary="Telefone..."
+                onEdit={(id, n, e, t) => setProcuradores(prev => prev.map(p => p.id === id ? { ...p, nome: n, email: e || '', telefone: t || '' } : p))}
+                showSecondaryInput={true} showThirdInput={true} placeholderSecondary="Email..." placeholderThird="Tel..."
+              />
+              <ReferenceSelectBox 
+                title="Juiz" category="TIT" theme={theme}
+                items={juizes.map(j => ({ id: j.id, label: j.nome, secondaryLabel: [j.email, j.telefone].filter(Boolean).join(' | ') }))}
+                selectedIds={formData.juiz || []}
+                onToggle={(v) => handleToggleReference('juiz', v)}
+                onAdd={(n, e, t) => setJuizes(prev => [...prev, { id: crypto.randomUUID(), nome: n, telefone: t || '', email: e || '' }])}
+                onRemove={(id) => setJuizes(prev => prev.filter(j => j.id !== id))}
+                onEdit={(id, n, e, t) => setJuizes(prev => prev.map(j => j.id === id ? { ...j, nome: n, email: e || '', telefone: t || '' } : j))}
+                showSecondaryInput={true} showThirdInput={true} placeholderSecondary="Email..." placeholderThird="Tel..."
               />
             </div>
           </div>
@@ -265,7 +276,6 @@ const ProcessForm: React.FC<ProcessFormProps> = ({
           @apply bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:ring-indigo-500/20;
         }
         
-        /* Custom date picker behavior for better appearance */
         input[type="date"]::-webkit-calendar-picker-indicator {
           opacity: 0;
           cursor: pointer;

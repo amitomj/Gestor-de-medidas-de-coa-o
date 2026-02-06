@@ -23,44 +23,48 @@ interface ReferenceSelectBoxProps {
   items: Item[];
   selectedIds: string[];
   onToggle: (label: string) => void;
-  onAdd: (label: string, secondary?: string) => void;
+  onAdd: (label: string, secondary?: string, third?: string) => void;
   onRemove: (id: string) => void;
-  onEdit: (id: string, newLabel: string, newSecondary?: string) => void;
+  onEdit: (id: string, newLabel: string, newSecondary?: string, newThird?: string) => void;
   placeholderAdd?: string;
   showSecondaryInput?: boolean;
+  showThirdInput?: boolean;
   showSecondaryInList?: boolean;
   placeholderSecondary?: string;
+  placeholderThird?: string;
 }
 
 const ReferenceSelectBox: React.FC<ReferenceSelectBoxProps> = ({
   title, category, theme, items, selectedIds, onToggle, onAdd, onRemove, onEdit,
-  placeholderAdd = "Novo...", showSecondaryInput = false, showSecondaryInList = true, placeholderSecondary = "Sub-info..."
+  placeholderAdd = "Novo...", showSecondaryInput = false, showThirdInput = false, showSecondaryInList = true, placeholderSecondary = "Sub-info...", placeholderThird = "Telefone..."
 }) => {
   const [filter, setFilter] = useState('');
   const [newValue, setNewValue] = useState('');
   const [newSecondary, setNewSecondary] = useState('');
+  const [newThird, setNewThird] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
   const [editSecondary, setEditSecondary] = useState('');
+  const [editThird, setEditThird] = useState('');
 
   const filteredItems = items.filter(i => 
     i.label.toLowerCase().includes(filter.toLowerCase()) ||
     (i.secondaryLabel && i.secondaryLabel.toLowerCase().includes(filter.toLowerCase()))
   );
 
-  // Itens selecionados que NÃO estão na lista oficial (ex: Manuel (Cópia))
   const externalSelected = selectedIds.filter(id => !items.find(item => item.label === id));
 
   const handleAddNew = () => {
     if (!newValue.trim()) return;
-    onAdd(newValue.trim(), showSecondaryInput ? newSecondary.trim() : undefined);
+    onAdd(newValue.trim(), showSecondaryInput ? newSecondary.trim() : undefined, showThirdInput ? newThird.trim() : undefined);
     setNewValue('');
     setNewSecondary('');
+    setNewThird('');
   };
 
   const saveEdit = () => {
     if (editingId && editValue.trim()) {
-      onEdit(editingId, editValue.trim(), showSecondaryInput ? editSecondary.trim() : undefined);
+      onEdit(editingId, editValue.trim(), showSecondaryInput ? editSecondary.trim() : undefined, showThirdInput ? editThird.trim() : undefined);
       setEditingId(null);
     }
   };
@@ -114,7 +118,6 @@ const ReferenceSelectBox: React.FC<ReferenceSelectBoxProps> = ({
       </div>
 
       <div className="overflow-y-auto p-1.5 space-y-0.5 h-[140px]">
-        {/* Exibir itens selecionados mas não listados no topo */}
         {externalSelected.length > 0 && externalSelected.map(label => (
           <div key={label} className={`flex items-center gap-2 p-1.5 rounded-lg transition-colors ${theme === 'dark' ? 'bg-blue-600/5 hover:bg-blue-600/10' : 'bg-slate-50 hover:bg-slate-100'}`}>
             <input 
@@ -140,7 +143,7 @@ const ReferenceSelectBox: React.FC<ReferenceSelectBoxProps> = ({
               className="w-3.5 h-3.5 rounded-md cursor-pointer accent-indigo-600"
             />
             {editingId === item.id ? (
-              <div className="flex-1 flex gap-1">
+              <div className="flex-1 flex flex-col gap-1">
                 <input 
                   autoFocus 
                   value={editValue} 
@@ -148,12 +151,12 @@ const ReferenceSelectBox: React.FC<ReferenceSelectBoxProps> = ({
                   onKeyDown={handleEditKeyDown}
                   className={`${inputBase} ${inputTheme} px-1.5 py-0.5 border rounded-md`} 
                 />
-                <button type="button" onClick={saveEdit} className="p-1 text-emerald-400"><CheckIcon className="w-4 h-4"/></button>
+                <button type="button" onClick={saveEdit} className="p-1 text-emerald-400 self-end"><CheckIcon className="w-4 h-4"/></button>
               </div>
             ) : (
               <div className="flex-1 flex flex-col cursor-pointer" onClick={() => onToggle(item.label)}>
                 <span className="text-[11px] font-bold">{item.label}</span>
-                {showSecondaryInList && item.secondaryLabel && <span className="text-[9px] opacity-60 italic leading-none">{item.secondaryLabel}</span>}
+                {showSecondaryInList && item.secondaryLabel && <span className="text-[9px] opacity-60 italic leading-none truncate max-w-[120px]">{item.secondaryLabel}</span>}
               </div>
             )}
             <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -181,6 +184,15 @@ const ReferenceSelectBox: React.FC<ReferenceSelectBoxProps> = ({
                 onKeyDown={handleKeyDown}
                 className={`${inputBase} ${inputTheme} px-2.5 py-1.5 rounded-lg border`} 
                 placeholder={placeholderSecondary} 
+              />
+            )}
+            {showThirdInput && (
+              <input 
+                value={newThird} 
+                onChange={e => setNewThird(e.target.value)} 
+                onKeyDown={handleKeyDown}
+                className={`${inputBase} ${inputTheme} px-2.5 py-1.5 rounded-lg border`} 
+                placeholder={placeholderThird} 
               />
             )}
           </div>

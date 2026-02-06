@@ -1,6 +1,6 @@
 
-import React, { useState, useRef } from 'react';
-import { CircleStackIcon, RocketLaunchIcon, ScaleIcon, FolderOpenIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import React, { useState, useRef, useEffect } from 'react';
+import { CircleStackIcon, RocketLaunchIcon, ScaleIcon, FolderOpenIcon, CheckCircleIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 
 interface Props {
   onInitialize: (project: any, folder: FileSystemDirectoryHandle | null, fallbackFiles: Map<string, File> | null) => void;
@@ -11,7 +11,22 @@ const StartupScreen: React.FC<Props> = ({ onInitialize, theme }) => {
   const [projectData, setProjectData] = useState<any>(null);
   const [folderHandle, setFolderHandle] = useState<FileSystemDirectoryHandle | null>(null);
   const [fallbackMap, setFallbackMap] = useState<Map<string, File> | null>(null);
+  const [hasSavedSession, setHasSavedSession] = useState(false);
   const directoryInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('gestor_judicial_data');
+    if (saved) {
+      setHasSavedSession(true);
+      // Opcionalmente, podemos pré-carregar os dados para que se o utilizador
+      // carregar em "Iniciar" sem escolher um JSON novo, use estes.
+      try {
+        setProjectData(JSON.parse(saved));
+      } catch (e) {
+        console.error("Erro ao carregar sessão anterior", e);
+      }
+    }
+  }, []);
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -21,6 +36,7 @@ const StartupScreen: React.FC<Props> = ({ onInitialize, theme }) => {
       try {
         const data = JSON.parse(evt.target?.result as string);
         setProjectData(data);
+        setHasSavedSession(false); // Indica que carregámos um novo em vez de usar o guardado
       } catch (err) {
         alert('Erro ao carregar ficheiro JSON.');
       }
@@ -53,17 +69,21 @@ const StartupScreen: React.FC<Props> = ({ onInitialize, theme }) => {
         directoryInputRef.current?.click();
       }
     } catch (err: any) {
-      // Fix: Casting err to any to avoid "Property 'name' does not exist on type 'unknown'"
       if (err && (err as any).name !== 'AbortError') {
-        // Fallback imediato se falhar o seletor moderno
         directoryInputRef.current?.click();
       }
     }
   };
 
+  const handleResume = () => {
+    const saved = localStorage.getItem('gestor_judicial_data');
+    if (saved) {
+      onInitialize(JSON.parse(saved), folderHandle, fallbackMap);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-8">
-      {/* Input invisível para fallback */}
       <input 
         type="file" 
         ref={directoryInputRef} 
@@ -83,6 +103,20 @@ const StartupScreen: React.FC<Props> = ({ onInitialize, theme }) => {
           <p className="text-blue-400 font-bold uppercase tracking-[0.3em] text-[10px]">Controlo de Prazos e Documentação Local</p>
         </div>
 
+        {hasSavedSession && (
+          <div className="p-6 bg-blue-500/10 border border-blue-500/30 rounded-3xl flex items-center justify-between gap-4 animate-pulse">
+            <div className="flex items-center gap-4 text-left">
+              <div className="p-3 bg-blue-500 rounded-2xl text-white">
+                <ArrowPathIcon className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-sm font-black text-white uppercase tracking-tight">Sessão Anterior Detetada</p>
+                <p className="text-[10px] text-blue-400 font-bold uppercase tracking-widest">Os seus dados foram carregados automaticamente.</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <label className={`relative block p-8 rounded-[2rem] border-4 border-dashed transition-all cursor-pointer group h-full ${projectData ? 'bg-emerald-500/10 border-emerald-500' : 'bg-slate-800/50 border-slate-700 hover:border-blue-500'}`}>
             <input type="file" className="hidden" accept=".json" onChange={handleFile} />
@@ -93,10 +127,15 @@ const StartupScreen: React.FC<Props> = ({ onInitialize, theme }) => {
               <div>
                 <p className="font-black text-white text-lg tracking-tight uppercase">Base de Dados</p>
                 <p className={`text-[10px] font-black uppercase tracking-widest mt-1 ${projectData ? 'text-emerald-400' : 'text-slate-500'}`}>
-                  {projectData ? 'Ficheiro Carregado' : 'Carregar .JSON'}
+                  {projectData ? 'Dados Prontos' : 'Carregar .JSON'}
                 </p>
               </div>
             </div>
+            {projectData && !hasSavedSession && (
+              <div className="absolute top-4 right-4 text-emerald-500">
+                <CheckCircleIcon className="w-6 h-6" />
+              </div>
+            )}
           </label>
 
           <button 
@@ -124,11 +163,11 @@ const StartupScreen: React.FC<Props> = ({ onInitialize, theme }) => {
             onClick={() => onInitialize(projectData, folderHandle, fallbackMap)}
             className="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-[1.5rem] shadow-3xl shadow-blue-900/40 transition-all flex items-center justify-center gap-3 text-lg active:scale-95"
           >
-            INICIAR GESTÃO <RocketLaunchIcon className="w-6 h-6" />
+            {hasSavedSession && !projectData?.isNewImport ? 'RETOMAR ÚLTIMA GESTÃO' : 'INICIAR GESTÃO'} <RocketLaunchIcon className="w-6 h-6" />
           </button>
           
           <p className="text-slate-600 text-[9px] font-black uppercase tracking-[0.2em]">
-            Os seus ficheiros permanecem no seu computador.
+            Os seus dados são guardados localmente no browser para acesso rápido.
           </p>
         </div>
       </div>

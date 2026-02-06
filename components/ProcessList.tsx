@@ -1,10 +1,12 @@
 
 import React from 'react';
-import { Processo, ReferenceItem, Procurador as TProcurador } from '../types';
+import { Processo, ReferenceItem, Procurador as TProcurador, Juiz } from '../types';
 import { 
   PencilSquareIcon, TrashIcon, CheckCircleIcon, DocumentDuplicateIcon, 
   MapPinIcon, ExclamationTriangleIcon, DocumentIcon, UserGroupIcon, 
-  ShieldCheckIcon, ScaleIcon, ChatBubbleBottomCenterTextIcon
+  ShieldCheckIcon, ScaleIcon, ChatBubbleBottomCenterTextIcon,
+  PhoneIcon,
+  EnvelopeIcon
 } from '@heroicons/react/24/outline';
 
 interface ProcessListProps {
@@ -17,9 +19,10 @@ interface ProcessListProps {
   onOpenDoc: (fileName: string) => void;
   diaps: ReferenceItem[];
   procuradores: TProcurador[];
+  juizes: Juiz[];
 }
 
-const ProcessList: React.FC<ProcessListProps> = ({ processos, theme, onEdit, onDelete, onToggleStatus, onDuplicate, onOpenDoc, diaps, procuradores }) => {
+const ProcessList: React.FC<ProcessListProps> = ({ processos, theme, onEdit, onDelete, onToggleStatus, onDuplicate, onOpenDoc, diaps, procuradores, juizes }) => {
   const getUrgencyData = (p: Processo) => {
     const now = Date.now();
     const revTime = new Date(p.prazoRevisao).getTime();
@@ -42,6 +45,7 @@ const ProcessList: React.FC<ProcessListProps> = ({ processos, theme, onEdit, onD
         const safeCrimes = Array.isArray(p.crime) ? p.crime : [p.crime as unknown as string];
         const safeMedidas = Array.isArray(p.medidasAplicadas) ? p.medidasAplicadas : [p.medidasAplicadas as unknown as string];
         const safeProcuradores = Array.isArray(p.nomeProcurador) ? p.nomeProcurador : [p.nomeProcurador as unknown as string];
+        const safeJuizes = Array.isArray(p.juiz) ? p.juiz : [];
         const safeDiaps = Array.isArray(p.diap) ? p.diap : [p.diap as unknown as string];
 
         return (
@@ -52,13 +56,15 @@ const ProcessList: React.FC<ProcessListProps> = ({ processos, theme, onEdit, onD
           }`}>
             <div className="flex flex-col lg:flex-row gap-8 relative z-10">
               <div className="flex-1 space-y-6">
-                <div>
-                  <span className={`text-[10px] font-black uppercase tracking-widest mb-1 block ${theme === 'dark' ? 'text-blue-400' : 'text-indigo-600'}`}>
-                    PROC. {p.numeroProcesso}
-                  </span>
-                  <h3 className={`text-2xl font-black tracking-tight ${theme === 'dark' ? 'text-slate-100' : 'text-slate-900'}`}>
-                    {Array.isArray(p.arguidos) ? p.arguidos.join(', ') : p.arguidos || 'Sem arguido'}
-                  </h3>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <span className={`text-[10px] font-black uppercase tracking-widest mb-1 block ${theme === 'dark' ? 'text-blue-400' : 'text-indigo-600'}`}>
+                      PROC. {p.numeroProcesso}
+                    </span>
+                    <h3 className={`text-2xl font-black tracking-tight ${theme === 'dark' ? 'text-slate-100' : 'text-slate-900'}`}>
+                      {Array.isArray(p.arguidos) ? p.arguidos.join(', ') : p.arguidos || 'Sem arguido'}
+                    </h3>
+                  </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
@@ -115,17 +121,42 @@ const ProcessList: React.FC<ProcessListProps> = ({ processos, theme, onEdit, onD
                       <p className="text-[9px] text-slate-500 uppercase font-black tracking-[0.2em] mb-2 flex items-center gap-2">
                         <UserGroupIcon className="w-4 h-4"/> Procuradores
                       </p>
-                      <div className="space-y-1">
+                      <div className="space-y-2">
                         {safeProcuradores.map(nome => {
                            const proc = procuradores.find(pr => pr.nome === nome);
                            return (
-                             <p key={nome} className={`text-xs font-black ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-                               {nome} {proc?.telefone && <span className="opacity-50 ml-1 font-bold">({proc.telefone})</span>}
-                             </p>
+                             <div key={nome} className="flex flex-col">
+                               <p className={`text-xs font-black ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{nome}</p>
+                               <div className="flex flex-wrap gap-2 mt-0.5 opacity-60">
+                                 {proc?.email && <span className="text-[8px] font-bold flex items-center gap-0.5 uppercase tracking-tighter"><EnvelopeIcon className="w-2.5 h-2.5"/>{proc.email}</span>}
+                                 {proc?.telefone && <span className="text-[8px] font-bold flex items-center gap-0.5 uppercase tracking-tighter"><PhoneIcon className="w-2.5 h-2.5"/>{proc.telefone}</span>}
+                               </div>
+                             </div>
                            );
                         })}
                       </div>
                     </div>
+                    {safeJuizes.length > 0 && (
+                      <div className="pt-3 border-t border-slate-700/30">
+                        <p className="text-[9px] text-slate-500 uppercase font-black tracking-[0.2em] mb-2 flex items-center gap-2">
+                          <ScaleIcon className="w-4 h-4"/> Juízes
+                        </p>
+                        <div className="space-y-2">
+                          {safeJuizes.map(nome => {
+                            const juiz = juizes.find(j => j.nome === nome);
+                            return (
+                              <div key={nome} className="flex flex-col">
+                                <p className={`text-xs font-black ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{nome}</p>
+                                <div className="flex flex-wrap gap-2 mt-0.5 opacity-60">
+                                  {juiz?.email && <span className="text-[8px] font-bold flex items-center gap-0.5 uppercase tracking-tighter"><EnvelopeIcon className="w-2.5 h-2.5"/>{juiz.email}</span>}
+                                  {juiz?.telefone && <span className="text-[8px] font-bold flex items-center gap-0.5 uppercase tracking-tighter"><PhoneIcon className="w-2.5 h-2.5"/>{juiz.telefone}</span>}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                     <div className="pt-3 border-t border-slate-700/30">
                       <p className="text-[9px] text-slate-500 uppercase font-black tracking-[0.2em] mb-2 flex items-center gap-2">
                         <MapPinIcon className="w-4 h-4"/> DIAP / Unidades
