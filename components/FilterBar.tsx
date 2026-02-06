@@ -4,7 +4,10 @@ import { AppFilters, ReferenceItem, Procurador, INITIAL_FILTERS } from '../types
 import { 
   ArrowPathIcon, 
   CircleStackIcon,
-  AdjustmentsHorizontalIcon
+  AdjustmentsHorizontalIcon,
+  CloudArrowDownIcon,
+  // Added ArchiveBoxIcon to fix the "Cannot find name 'ArchiveBoxIcon'" error
+  ArchiveBoxIcon
 } from '@heroicons/react/24/outline';
 
 interface Props {
@@ -97,12 +100,13 @@ const FilterBar: React.FC<Props> = ({
         </div>
       </div>
 
-      <div className="flex justify-end gap-4 pt-6 border-t border-slate-700/30">
+      <div className="flex flex-wrap justify-end gap-4 pt-6 border-t border-slate-700/30">
         <button onClick={onExportWord} className={`btn-action group ${theme === 'dark' ? 'bg-blue-600/10 text-blue-400 border-blue-500/30' : 'bg-blue-50 text-blue-700 border-blue-200'}`}>
-           <CircleStackIcon className="w-5 h-5 group-hover:scale-110 transition-transform"/> EXPORTAR WORD
+           <ArchiveBoxIcon className="w-5 h-5 group-hover:scale-110 transition-transform"/> EXPORTAR RELATÓRIO WORD
         </button>
-        <button onClick={onExportJson} className={`btn-action group ${theme === 'dark' ? 'bg-amber-600/10 text-amber-400 border-amber-500/30' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
-           <CircleStackIcon className="w-5 h-5 group-hover:scale-110 transition-transform"/> BACKUP JSON
+        
+        <button onClick={onExportJson} className={`btn-action group ${theme === 'dark' ? 'bg-emerald-600/10 text-emerald-400 border-emerald-500/30' : 'bg-emerald-50 text-emerald-700 border-emerald-200'}`}>
+           <CloudArrowDownIcon className="w-5 h-5 group-hover:scale-110 transition-transform"/> DESCARREGAR JSON (BACKUP)
         </button>
       </div>
 
